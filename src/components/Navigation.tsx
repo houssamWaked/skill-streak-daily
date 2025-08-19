@@ -12,7 +12,7 @@ export const Navigation = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-gradient-glass backdrop-blur-xl border-t border-border/20 shadow-glow">
       <div className="flex items-center justify-around px-4 py-2">
         {navItems.map(({ path, icon: Icon, label }) => {
           const isActive = location.pathname === path;
@@ -22,10 +22,10 @@ export const Navigation = () => {
               key={path}
               to={path}
               className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors',
+                'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-spring',
                 isActive 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  ? 'text-primary bg-primary/20 shadow-soft scale-105' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/20 hover:scale-105'
               )}
             >
               <Icon size={20} />

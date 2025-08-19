@@ -22,7 +22,7 @@ export const StreakIndicator = ({ streak, className, size = 'md' }: StreakIndica
 
   return (
     <div className={cn(
-      'flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-primary text-primary-foreground font-semibold shadow-streak',
+      'flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-primary text-primary-foreground font-semibold shadow-streak animate-glow-pulse',
       sizeClasses[size],
       className
     )}>

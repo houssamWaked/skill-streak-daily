@@ -16,14 +16,14 @@ const Welcome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero p-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-hero p-4 flex items-center justify-center animate-fade-in">
       <div className="w-full max-w-md space-y-6">
         {/* Hero Image */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-slide-up">
           <img 
             src={heroImage} 
             alt="People learning and growing together"
-            className="w-full h-48 object-cover rounded-2xl shadow-card mb-6"
+            className="w-full h-48 object-cover rounded-2xl shadow-glow mb-6"
           />
           <h1 className="text-4xl font-bold text-white mb-2">SkillSpark</h1>
           <p className="text-white/90 text-lg">
@@ -32,8 +32,8 @@ const Welcome = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="space-y-4">
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+        <div className="space-y-4 animate-slide-up" style={{animationDelay: '0.2s'}}>
+          <Card className="bg-gradient-glass backdrop-blur-md border-white/20">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="p-2 bg-primary/20 rounded-lg">
                 <Target className="w-5 h-5 text-white" />
@@ -45,7 +45,7 @@ const Welcome = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+          <Card className="bg-gradient-glass backdrop-blur-md border-white/20">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="p-2 bg-accent/20 rounded-lg">
                 <TrendingUp className="w-5 h-5 text-white" />
@@ -57,7 +57,7 @@ const Welcome = () => {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+          <Card className="bg-gradient-glass backdrop-blur-md border-white/20">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="p-2 bg-warning/20 rounded-lg">
                 <Sparkles className="w-5 h-5 text-white" />
@@ -71,13 +71,15 @@ const Welcome = () => {
         </div>
 
         {/* CTA Button */}
-        <Button 
-          onClick={handleContinue}
-          size="lg"
-          className="w-full bg-white text-primary hover:bg-white/90 font-semibold text-lg py-6 rounded-xl shadow-card"
-        >
-          Let's Get Started
-        </Button>
+        <div className="animate-slide-up" style={{animationDelay: '0.4s'}}>
+          <Button 
+            onClick={handleContinue}
+            size="lg"
+            className="w-full bg-white text-primary hover:bg-white/90 font-semibold text-lg py-6 rounded-xl shadow-glow hover:shadow-streak transition-spring"
+          >
+            Let's Get Started
+          </Button>
+        </div>
       </div>
     </div>
   );
