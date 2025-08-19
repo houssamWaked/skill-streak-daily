@@ -13,8 +13,9 @@ import {
   Skill 
 } from '@/lib/storage';
 import { getSkillForToday } from '@/lib/skills';
-import { CheckCircle2, Calendar } from 'lucide-react';
+import { CheckCircle2, Calendar, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [todaySkill, setTodaySkill] = useState<Skill | null>(null);
@@ -102,7 +103,7 @@ const Home = () => {
             <SkillCard skill={todaySkill} showCategory />
             
             {/* Action Button */}
-            <div className="text-center">
+            <div className="text-center space-y-3">
               {isCompleted ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-2 text-success font-semibold">
@@ -122,6 +123,12 @@ const Home = () => {
                   Mark as Complete
                 </Button>
               )}
+
+              <Button variant="modern" asChild>
+                <Link to="/chat" className="inline-flex items-center gap-2 justify-center w-full">
+                  <MessageSquare className="w-4 h-4" /> Ask Coach about this skill
+                </Link>
+              </Button>
             </div>
 
             {/* Motivational Text */}

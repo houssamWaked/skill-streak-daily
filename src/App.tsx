@@ -10,6 +10,7 @@ import InterestSelection from "./pages/InterestSelection";
 import Home from "./pages/Home";
 import Archive from "./pages/Archive";
 import Settings from "./pages/Settings";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const AppRouter = () => {
       <Route path="/" element={isNewUser ? <Welcome /> : <Navigate to="/home" replace />} />
       <Route path="/interests" element={<InterestSelection />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/chat" element={<Chat />} />
       <Route path="/archive" element={<Archive />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="*" element={<NotFound />} />

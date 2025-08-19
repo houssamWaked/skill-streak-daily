@@ -1,9 +1,10 @@
-import { Home, Archive, Settings } from 'lucide-react';
+import { Home, Archive, Settings, MessageSquare } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Home' },
+  { path: '/chat', icon: MessageSquare, label: 'Chat' },
   { path: '/archive', icon: Archive, label: 'Archive' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ];
