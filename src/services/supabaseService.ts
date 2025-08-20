@@ -17,7 +17,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
       .from('profiles')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching user profile:', error);
@@ -108,9 +108,9 @@ export const getTodaysCompletion = async (userId: string): Promise<TaskCompletio
       .select('*')
       .eq('user_id', userId)
       .gte('completed_at', new Date(today).toISOString())
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+    if (error) {
       console.error('Error fetching today\'s completion:', error);
       return null;
     }
