@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import Welcome from "./pages/Welcome";
@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
+  const location = useLocation();
 
   if (loading || profileLoading) {
     return (
@@ -30,8 +31,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if new user needs onboarding
-  if (profile && profile.interests.length === 0) {
+  // Check if new user needs onboarding (but don't redirect if already on interests page)
+  if (profile && profile.interests.length === 0 && location.pathname !== '/interests') {
     return <Navigate to="/interests" replace />;
   }
 
