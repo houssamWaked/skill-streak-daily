@@ -44,12 +44,137 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_tasks: {
+        Row: {
+          ai_prompt: string | null
+          category: string
+          created_at: string
+          description: string
+          difficulty_level: number | null
+          estimated_time_minutes: number | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_prompt?: string | null
+          category: string
+          created_at?: string
+          description: string
+          difficulty_level?: number | null
+          estimated_time_minutes?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_prompt?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          difficulty_level?: number | null
+          estimated_time_minutes?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          interests: string[] | null
+          notification_enabled: boolean | null
+          notification_time: string | null
+          theme: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          interests?: string[] | null
+          notification_enabled?: boolean | null
+          notification_time?: string | null
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          interests?: string[] | null
+          notification_enabled?: boolean | null
+          notification_time?: string | null
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_task_completions: {
+        Row: {
+          completed_at: string
+          custom_task_id: string | null
+          id: string
+          notes: string | null
+          rating: number | null
+          streak_day: number
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          custom_task_id?: string | null
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          streak_day: number
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          custom_task_id?: string | null
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          streak_day?: number
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_daily_task: {
+        Args: { user_uuid: string }
+        Returns: {
+          ai_prompt: string
+          category: string
+          description: string
+          id: string
+          image_url: string
+          is_custom: boolean
+          title: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
