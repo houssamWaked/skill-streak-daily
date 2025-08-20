@@ -16,8 +16,27 @@ export const skillCategories = [
 
 export type SkillCategory = typeof skillCategories[number];
 
+// Helper function to easily create new skills - just add to the array below!
+const createSkill = (id: string, title: string, description: string, category: SkillCategory): Skill => ({
+  id,
+  title,
+  description,
+  category,
+});
+
+// 🚀 ADD NEW SKILLS HERE - Super easy format!
+// Just use: createSkill('unique-id', 'Title', 'Description', 'Category')
+const newSkills: Skill[] = [
+  // 📝 Copy this template to add new skills:
+  // createSkill('new-1', 'Skill Title', 'Clear description of what to practice', 'Communication'),
+  
+  // Add your new skills below this line:
+  createSkill('comm-5', 'Public Speaking', 'Practice speaking confidently to groups. Start with 1-minute presentations and focus on clear, engaging delivery.', 'Communication'),
+  createSkill('lead-5', 'Mentoring', 'Guide someone by sharing knowledge and asking thoughtful questions. Focus on their growth, not just giving answers.', 'Leadership'),
+];
+
 // Comprehensive skills database
-export const skillsDatabase: Skill[] = [
+const coreSkills: Skill[] = [
   // Communication
   {
     id: 'comm-1',
@@ -188,6 +207,9 @@ export const skillsDatabase: Skill[] = [
     category: 'Mindfulness',
   },
 ];
+
+// Combine core skills with new skills
+export const skillsDatabase: Skill[] = [...coreSkills, ...newSkills];
 
 // Get a random skill based on user interests and completed skills
 export const getSkillForToday = (interests: string[], completedSkillIds: string[]): Skill => {
