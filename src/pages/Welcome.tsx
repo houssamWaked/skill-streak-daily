@@ -1,19 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
-import { getUserPreferences, saveUserPreferences } from '@/lib/storage';
 import { Sparkles, Target, TrendingUp } from 'lucide-react';
 import heroImage from '@/assets/hero-image.jpg';
+import { Link } from 'react-router-dom';
 
 const Welcome = () => {
-  const navigate = useNavigate();
-
-  const handleContinue = () => {
-    const preferences = getUserPreferences();
-    preferences.isNewUser = false;
-    saveUserPreferences(preferences);
-    navigate('/interests');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-hero p-4 flex items-center justify-center animate-fade-in">
@@ -72,12 +63,8 @@ const Welcome = () => {
 
         {/* CTA Button */}
         <div className="animate-slide-up" style={{animationDelay: '0.4s'}}>
-          <Button 
-            onClick={handleContinue}
-            size="lg"
-            className="w-full bg-white text-primary hover:bg-white/90 font-semibold text-lg py-6 rounded-xl shadow-glow hover:shadow-streak transition-spring"
-          >
-            Let's Get Started
+          <Button asChild size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold text-lg py-6 rounded-xl shadow-glow hover:shadow-streak transition-spring">
+            <Link to="/auth">Let's Get Started</Link>
           </Button>
         </div>
       </div>

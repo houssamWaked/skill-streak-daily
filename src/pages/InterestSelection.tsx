@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useNavigate } from 'react-router-dom';
-import { getUserPreferences, saveUserPreferences } from '@/lib/storage';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
 import { skillCategories } from '@/lib/skills';
+import { toast } from 'sonner';
 import { ArrowRight, Brain, Users, Clock, Heart, Lightbulb, Target, Zap, Eye, Puzzle, Leaf } from 'lucide-react';
 
 const categoryIcons = {
@@ -22,7 +24,10 @@ const categoryIcons = {
 
 const InterestSelection = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { updateProfile } = useProfile();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleCheckboxChange = (category: string, checked: boolean) => {
     if (checked) {
@@ -32,11 +37,22 @@ const InterestSelection = () => {
     }
   };
 
-  const handleContinue = () => {
-    const preferences = getUserPreferences();
-    preferences.interests = selectedInterests;
-    saveUserPreferences(preferences);
-    navigate('/home');
+  const handleContinue = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      await updateProfile({
+        interests: selectedInterests,
+      });
+      toast.success('Interests saved! Welcome to SkillSpark!');
+      navigate('/home');
+    } catch (error) {
+      console.error('Error saving interests:', error);
+      toast.error('Failed to save interests. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -85,17 +101,18 @@ const InterestSelection = () => {
         <div className="space-y-4">
           <Button 
             onClick={handleContinue}
-            disabled={selectedInterests.length === 0}
+            disabled={loading}
             size="lg"
             className="w-full bg-gradient-primary hover:opacity-90 font-semibold py-6 rounded-xl shadow-soft"
           >
-            Continue
+            {loading ? 'Saving...' : 'Continue'}
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
           
           <Button 
             variant="ghost"
-            onClick={() => handleContinue()}
+            onClick={handleContinue}
+            disabled={loading}
             className="w-full text-muted-foreground"
           >
             Skip for now

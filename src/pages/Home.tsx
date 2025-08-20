@@ -3,62 +3,46 @@ import { Button } from '@/components/ui/button';
 import { SkillCard } from '@/components/SkillCard';
 import { StreakIndicator } from '@/components/StreakIndicator';
 import { Navigation } from '@/components/Navigation';
-import { 
-  getUserPreferences, 
-  getTodaySkill, 
-  saveTodaySkill, 
-  saveCompletedSkill,
-  getCompletedSkills,
-  isSkillCompletedToday,
-  Skill 
-} from '@/lib/storage';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { useTaskCompletions } from '@/hooks/useTaskCompletions';
+import { Skill } from '@/lib/storage';
 import { getSkillForToday } from '@/lib/skills';
 import { CheckCircle2, Calendar, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const { streak, isCompletedToday, completedSkillIds, completeTask } = useTaskCompletions();
   const [todaySkill, setTodaySkill] = useState<Skill | null>(null);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [streak, setStreak] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadTodaySkill = () => {
-      const preferences = getUserPreferences();
-      const completedSkills = getCompletedSkills();
-      const completedSkillIds = completedSkills.map(skill => skill.id);
+      if (!profile) return;
       
-      let skill = getTodaySkill();
-      
-      // If no skill for today, generate one
-      if (!skill) {
-        skill = getSkillForToday(preferences.interests, completedSkillIds);
-        saveTodaySkill(skill);
-      }
-      
+      // Generate today's skill based on user interests and completed skills
+      const skill = getSkillForToday(profile.interests, completedSkillIds);
       setTodaySkill(skill);
-      setStreak(preferences.streak);
-      setIsCompleted(isSkillCompletedToday());
       setLoading(false);
     };
 
     loadTodaySkill();
-  }, []);
+  }, [profile, completedSkillIds]);
 
-  const handleCompleteSkill = () => {
-    if (!todaySkill || isCompleted) return;
+  const handleCompleteSkill = async () => {
+    if (!todaySkill || isCompletedToday) return;
     
-    saveCompletedSkill(todaySkill);
-    setIsCompleted(true);
-    
-    // Update streak display
-    const preferences = getUserPreferences();
-    setStreak(preferences.streak);
-    
-    toast.success('Great job! Skill completed!', {
-      description: `You're on a ${preferences.streak}-day streak! 🎉`
-    });
+    try {
+      await completeTask(todaySkill);
+      toast.success('Great job! Skill completed!', {
+        description: `You're on a ${streak + 1}-day streak! 🎉`
+      });
+    } catch (error) {
+      toast.error('Failed to mark skill as complete. Please try again.');
+    }
   };
 
   const formatDate = (date: Date) => {
@@ -104,7 +88,7 @@ const Home = () => {
             
             {/* Action Button */}
             <div className="text-center space-y-3">
-              {isCompleted ? (
+              {isCompletedToday ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-2 text-success font-semibold">
                     <CheckCircle2 className="w-6 h-6" />

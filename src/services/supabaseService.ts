@@ -1,0 +1,261 @@
+import { supabase } from '@/integrations/supabase/client';
+import { Skill } from '@/lib/storage';
+
+// User Profile Management
+export interface UserProfile {
+  user_id: string;
+  interests: string[];
+  notification_enabled: boolean;
+  notification_time: string;
+  theme: string;
+  display_name?: string;
+}
+
+export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    return null;
+  }
+};
+
+export const updateUserProfile = async (userId: string, updates: Partial<UserProfile>) => {
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ 
+        user_id: userId, 
+        ...updates 
+      }, { 
+        onConflict: 'user_id' 
+      });
+
+    if (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in updateUserProfile:', error);
+    throw error;
+  }
+};
+
+// Task Completion Management
+export interface TaskCompletion {
+  id?: string;
+  user_id: string;
+  task_id?: string;
+  custom_task_id?: string;
+  completed_at: string;
+  streak_day: number;
+  rating?: number;
+  notes?: string;
+}
+
+export const getTaskCompletions = async (userId: string): Promise<TaskCompletion[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('user_task_completions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('completed_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching task completions:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getTaskCompletions:', error);
+    return [];
+  }
+};
+
+export const addTaskCompletion = async (completion: Omit<TaskCompletion, 'id'>) => {
+  try {
+    const { error } = await supabase
+      .from('user_task_completions')
+      .insert(completion);
+
+    if (error) {
+      console.error('Error adding task completion:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in addTaskCompletion:', error);
+    throw error;
+  }
+};
+
+export const getTodaysCompletion = async (userId: string): Promise<TaskCompletion | null> => {
+  try {
+    const today = new Date().toDateString();
+    const { data, error } = await supabase
+      .from('user_task_completions')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('completed_at', new Date(today).toISOString())
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      console.error('Error fetching today\'s completion:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getTodaysCompletion:', error);
+    return null;
+  }
+};
+
+// Custom Tasks Management
+export interface CustomTask {
+  id?: string;
+  user_id: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty_level: number;
+  estimated_time_minutes: number;
+  is_active: boolean;
+  image_url?: string;
+  ai_prompt?: string;
+}
+
+export const getCustomTasks = async (userId: string): Promise<CustomTask[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('custom_tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching custom tasks:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getCustomTasks:', error);
+    return [];
+  }
+};
+
+export const addCustomTask = async (task: Omit<CustomTask, 'id'>) => {
+  try {
+    const { data, error } = await supabase
+      .from('custom_tasks')
+      .insert(task)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding custom task:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in addCustomTask:', error);
+    throw error;
+  }
+};
+
+// Streak Calculation
+export const calculateStreak = (completions: TaskCompletion[]): number => {
+  if (completions.length === 0) return 0;
+
+  // Sort by completion date (most recent first)
+  const sortedCompletions = completions.sort((a, b) => 
+    new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime()
+  );
+
+  let streak = 0;
+  let currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  for (const completion of sortedCompletions) {
+    const completionDate = new Date(completion.completed_at);
+    completionDate.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.floor((currentDate.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === streak) {
+      // Consecutive day
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else if (diffDays > streak) {
+      // Gap in streak, stop counting
+      break;
+    }
+  }
+
+  return streak;
+};
+
+// Migration helper functions
+export const migrateLocalStorageData = async (userId: string) => {
+  try {
+    // Check if already migrated
+    const existingProfile = await getUserProfile(userId);
+    if (existingProfile && existingProfile.interests.length > 0) {
+      console.log('Data already migrated for user:', userId);
+      return;
+    }
+
+    // Migrate user preferences
+    const localPreferences = localStorage.getItem('skillspark_user_preferences');
+    if (localPreferences) {
+      const prefs = JSON.parse(localPreferences);
+      await updateUserProfile(userId, {
+        interests: prefs.interests || [],
+        notification_enabled: true,
+        notification_time: '09:00:00',
+        theme: 'dark'
+      });
+      console.log('Migrated user preferences');
+    }
+
+    // Migrate completed skills
+    const localCompletions = localStorage.getItem('skillspark_completed_skills');
+    if (localCompletions) {
+      const completions = JSON.parse(localCompletions);
+      for (const completion of completions) {
+        await addTaskCompletion({
+          user_id: userId,
+          task_id: completion.id,
+          completed_at: completion.completedDate,
+          streak_day: completion.dayNumber,
+          notes: `Migrated from localStorage: ${completion.title}`
+        });
+      }
+      console.log('Migrated completed skills');
+    }
+
+    // Clear localStorage after successful migration
+    localStorage.removeItem('skillspark_user_preferences');
+    localStorage.removeItem('skillspark_completed_skills');
+    localStorage.removeItem('skillspark_today_skill');
+    localStorage.removeItem('skillspark_last_skill_date');
+    
+    console.log('Local storage data migrated successfully');
+  } catch (error) {
+    console.error('Error migrating localStorage data:', error);
+  }
+};

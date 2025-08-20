@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { path: '/', icon: Home, label: 'Home' },
+  { path: '/home', icon: Home, label: 'Home' },
   { path: '/chat', icon: MessageSquare, label: 'Chat' },
   { path: '/archive', icon: Archive, label: 'Archive' },
   { path: '/settings', icon: Settings, label: 'Settings' },
@@ -16,7 +16,7 @@ export const Navigation = () => {
     <nav className="fixed bottom-0 left-0 right-0 bg-gradient-glass backdrop-blur-xl border-t border-border/20 shadow-glow">
       <div className="flex items-center justify-around px-4 py-2">
         {navItems.map(({ path, icon: Icon, label }) => {
-          const isActive = location.pathname === path;
+          const isActive = location.pathname === path || (path === '/home' && location.pathname === '/');
           
           return (
             <Link

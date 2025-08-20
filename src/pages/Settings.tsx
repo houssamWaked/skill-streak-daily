@@ -8,15 +8,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Navigation } from '@/components/Navigation';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { useTaskCompletions } from '@/hooks/useTaskCompletions';
 import { useNotifications } from '@/hooks/useNotifications';
-import { 
-  getUserPreferences, 
-  saveUserPreferences, 
-  resetStreak,
-  getCompletedSkills 
-} from '@/lib/storage';
 import { skillCategories } from '@/lib/skills';
-import { AlertTriangle, RotateCcw, Target, Trash2, Moon, Sun, Bell, Plus } from 'lucide-react';
+import { AlertTriangle, RotateCcw, Target, Trash2, Moon, Sun, Bell, Plus, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -33,46 +30,41 @@ import {
 const Settings = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { signOut } = useAuth();
+  const { profile, updateProfile } = useProfile();
+  const { completions, streak } = useTaskCompletions();
   const { permission, settings, requestPermission, updateSettings, testNotification } = useNotifications();
   const [interests, setInterests] = useState<string[]>([]);
-  const [streak, setStreak] = useState(0);
-  const [totalSkills, setTotalSkills] = useState(0);
 
   useEffect(() => {
-    const preferences = getUserPreferences();
-    const completedSkills = getCompletedSkills();
-    
-    setInterests(preferences.interests);
-    setStreak(preferences.streak);
-    setTotalSkills(completedSkills.length);
-  }, []);
+    if (profile) {
+      setInterests(profile.interests);
+    }
+  }, [profile]);
 
-  const handleInterestChange = (category: string, checked: boolean) => {
+  const handleInterestChange = async (category: string, checked: boolean) => {
     const newInterests = checked 
       ? [...interests, category]
-      : interests.filter(interest => interest !== category);
+      : interests.filter(i => i !== category);
     
     setInterests(newInterests);
     
-    const preferences = getUserPreferences();
-    preferences.interests = newInterests;
-    saveUserPreferences(preferences);
-    
-    toast.success('Interests updated!');
+    try {
+      await updateProfile({ interests: newInterests });
+      toast.success('Interests updated!');
+    } catch (error) {
+      toast.error('Failed to update interests');
+    }
   };
 
-  const handleResetStreak = () => {
-    resetStreak();
-    setStreak(0);
-    toast.success('Streak reset successfully');
+  const handleResetStreak = async () => {
+    // Reset streak would need to be implemented in Supabase
+    toast.success('Streak reset functionality coming soon!');
   };
 
-  const handleClearAllData = () => {
-    localStorage.clear();
-    setInterests([]);
-    setStreak(0);
-    setTotalSkills(0);
-    toast.success('All data cleared');
+  const handleClearAllData = async () => {
+    // This would need to clear all Supabase data for the user
+    toast.success('Clear all data functionality coming soon!');
   };
 
   const handleNotificationTimeChange = (time: string) => {
@@ -214,7 +206,7 @@ const Settings = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Skills Completed</span>
-                <span className="font-semibold text-foreground">{totalSkills}</span>
+                <span className="font-semibold text-foreground">{completions.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Categories</span>
@@ -324,6 +316,15 @@ const Settings = () => {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+
+              <Button 
+                onClick={signOut}
+                variant="outline"
+                className="w-full justify-start text-muted-foreground border-border/20 hover:bg-muted/20"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
             </CardContent>
           </Card>
         </div>
