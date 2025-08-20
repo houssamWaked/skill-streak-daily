@@ -87,10 +87,6 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (!apiKey) {
-      toast.error('Add your OpenAI API key to start chatting.');
-      return;
-    }
     if (!input.trim()) return;
 
     const newMessages: ChatMessage[] = [...messages, { role: 'user', content: input.trim() }];
@@ -99,34 +95,60 @@ const Chat = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://mbtkjvgruhvzzdeyobwc.supabase.co/functions/v1/ai-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...newMessages,
-          ],
-          temperature: 0.7,
+          messages: newMessages,
+          taskTitle: todaySkillTitle,
+          taskDescription: todaySkillDescription,
+          customPrompt: null // Will be populated from custom tasks later
         }),
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText || 'Failed to reach OpenAI');
+        throw new Error('Failed to get response from AI coach');
       }
 
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content?.trim() || 'Sorry, I had trouble answering that.';
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
 
-      setMessages((prev) => [...prev, { role: 'assistant', content }]);
+      let assistantMessage = '';
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = new TextDecoder().decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.choices?.[0]?.delta?.content) {
+                assistantMessage += data.choices[0].delta.content;
+                setMessages(prev => 
+                  prev.map((msg, idx) => 
+                    idx === prev.length - 1 
+                      ? { ...msg, content: assistantMessage }
+                      : msg
+                  )
+                );
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error(error);
-      toast.error('Error chatting with coach. Check your API key or try again.');
+      toast.error('Error chatting with coach. Please try again.');
+      setMessages(prev => prev.slice(0, -1)); // Remove empty assistant message
     } finally {
       setLoading(false);
     }
@@ -153,36 +175,8 @@ const Chat = () => {
           <p className="text-sm text-muted-foreground">{todaySkillTitle}</p>
         </div>
 
-        {/* API key gate */}
-        {!apiKey ? (
-          <Card className="bg-gradient-card shadow-soft border-border/20 animate-fade-in">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
-                <KeyRound className="w-5 h-5 text-primary" />
-                Add your OpenAI API key
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                For security, the key is stored only in your browser (localStorage). You can remove it anytime in Settings.
-              </p>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="sk-..."
-                  type="password"
-                  value={keyInput}
-                  onChange={(e) => setKeyInput(e.target.value)}
-                />
-                <Button onClick={handleSaveKey} variant="modern">Save</Button>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Lock className="w-3.5 h-3.5" />
-                <span>No server used. For team apps, we recommend a backend proxy (Supabase) for secrets.</span>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
+        {/* Chat Interface */}
+        <>
             {/* Context */}
             <div className="mb-3">
               <Card className="bg-gradient-glass backdrop-blur-md border-border/20">
@@ -250,7 +244,6 @@ const Chat = () => {
               </Button>
             </div>
           </>
-        )}
       </div>
 
       <Navigation />

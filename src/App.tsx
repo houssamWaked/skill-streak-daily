@@ -1,8 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUserPreferences } from "@/lib/storage";
 import Welcome from "./pages/Welcome";
@@ -11,9 +9,8 @@ import Home from "./pages/Home";
 import Archive from "./pages/Archive";
 import Settings from "./pages/Settings";
 import Chat from "./pages/Chat";
+import CreateTask from "./pages/CreateTask";
 import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient();
 
 const AppRouter = () => {
   const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
@@ -39,21 +36,17 @@ const AppRouter = () => {
       <Route path="/chat" element={<Chat />} />
       <Route path="/archive" element={<Archive />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/create-task" element={<CreateTask />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <TooltipProvider>
+    <Toaster />
+    <AppRouter />
+  </TooltipProvider>
 );
 
 export default App;
