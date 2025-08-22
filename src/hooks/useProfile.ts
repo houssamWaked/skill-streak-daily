@@ -10,26 +10,21 @@ export const useProfile = () => {
   useEffect(() => {
     const loadProfile = async () => {
       if (!user) {
-        console.log('useProfile: No user, resetting state');
         setProfile(null);
         setLoading(false);
         return;
       }
 
-      console.log('useProfile: Loading profile for user:', user.id);
       try {
         setLoading(true);
         const userProfile = await getUserProfile(user.id);
-        console.log('useProfile: Got profile:', userProfile);
         setProfile(userProfile);
 
-        // Try to migrate localStorage data only if no profile exists
-        if (!userProfile) {
-          console.log('useProfile: No profile found, attempting migration');
+        // Try to migrate localStorage data if profile is new
+        if (!userProfile || userProfile.interests.length === 0) {
           await migrateLocalStorageData(user.id);
           // Reload profile after migration
           const updatedProfile = await getUserProfile(user.id);
-          console.log('useProfile: Profile after migration:', updatedProfile);
           setProfile(updatedProfile);
         }
       } catch (error) {
