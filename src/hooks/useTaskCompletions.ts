@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
-  getTaskCompletions, 
+  getTaskCompletion, 
   addTaskCompletion, 
-  getTodaysCompletion,
+  getTodaysCompletions,
   calculateStreak,
   TaskCompletion 
 } from '@/services/supabaseService';
@@ -21,19 +21,21 @@ export const useTaskCompletions = () => {
       if (!user) {
         setCompletions([]);
         setTodaysCompletion(null);
+        setStreak(0);
         setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-        const [allCompletions, todayCompletion] = await Promise.all([
-          getTaskCompletions(user.id),
-          getTodaysCompletion(user.id)
+
+        const [allCompletions, todayCompletionArray] = await Promise.all([
+          getTaskCompletion(user.id),
+          getTodaysCompletions(user.id)
         ]);
 
         setCompletions(allCompletions);
-        setTodaysCompletion(todayCompletion);
+        setTodaysCompletion(todayCompletionArray[0] || null); // Pick first completion of today
         setStreak(calculateStreak(allCompletions));
       } catch (error) {
         console.error('Error loading completions:', error);
@@ -60,14 +62,14 @@ export const useTaskCompletions = () => {
 
       await addTaskCompletion(completion);
 
-      // Reload completions to update state
-      const [allCompletions, todayCompletion] = await Promise.all([
-        getTaskCompletions(user.id),
-        getTodaysCompletion(user.id)
+      // Reload completions
+      const [allCompletions, todayCompletionArray] = await Promise.all([
+        getTaskCompletion(user.id),
+        getTodaysCompletions(user.id)
       ]);
 
       setCompletions(allCompletions);
-      setTodaysCompletion(todayCompletion);
+      setTodaysCompletion(todayCompletionArray[0] || null);
       setStreak(calculateStreak(allCompletions));
     } catch (error) {
       console.error('Error completing task:', error);

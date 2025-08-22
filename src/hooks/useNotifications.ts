@@ -118,8 +118,8 @@ export function useNotifications() {
     if (permission === 'granted') {
       new Notification('SkillSpark Daily Reminder', {
         body: 'Time to practice your daily skill! 🌟',
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
+        icon: '../assets/AQLURA.jpg',
+        badge: '../assets/AQLURA.jpg',
         tag: 'daily-reminder'
       });
     }

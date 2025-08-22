@@ -64,7 +64,7 @@ export interface TaskCompletion {
   notes?: string;
 }
 
-export const getTaskCompletions = async (userId: string): Promise<TaskCompletion[]> => {
+export const getTaskCompletion = async (userId: string): Promise<TaskCompletion[]> => {
   try {
     const { data, error } = await supabase
       .from('user_task_completions')
@@ -99,28 +99,30 @@ export const addTaskCompletion = async (completion: Omit<TaskCompletion, 'id'>) 
     throw error;
   }
 };
-
-export const getTodaysCompletion = async (userId: string): Promise<TaskCompletion | null> => {
+export const getTodaysCompletions = async (userId: string): Promise<TaskCompletion[]> => {
   try {
-    const today = new Date().toDateString();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+
     const { data, error } = await supabase
       .from('user_task_completions')
       .select('*')
       .eq('user_id', userId)
-      .gte('completed_at', new Date(today).toISOString())
-      .maybeSingle();
+      .gte('completed_at', today.toISOString())
+      .order('completed_at', { ascending: true });
 
     if (error) {
-      console.error('Error fetching today\'s completion:', error);
-      return null;
+      console.error('Error fetching today\'s completions:', error);
+      return [];
     }
 
-    return data;
+    return data || [];
   } catch (error) {
-    console.error('Error in getTodaysCompletion:', error);
-    return null;
+    console.error('Error in getTodaysCompletions:', error);
+    return [];
   }
 };
+
 
 // Custom Tasks Management
 export interface CustomTask {
@@ -187,7 +189,7 @@ export const calculateStreak = (completions: TaskCompletion[]): number => {
   );
 
   let streak = 0;
-  let currentDate = new Date();
+  const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
   for (const completion of sortedCompletions) {

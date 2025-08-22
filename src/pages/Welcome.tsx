@@ -1,69 +1,65 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, Target, TrendingUp } from 'lucide-react';
 import heroImage from '@/assets/hero-image.jpg';
 import { Link } from 'react-router-dom';
 
 const Welcome = () => {
-
   return (
-    <div className="min-h-screen bg-gradient-hero p-4 flex items-center justify-center animate-fade-in">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 animate-fade-in">
       <div className="w-full max-w-md space-y-6">
-        {/* Hero Image */}
-        <div className="text-center mb-8 animate-slide-up">
-          <img 
-            src={heroImage} 
-            alt="People learning and growing together"
-            className="w-full h-48 object-cover rounded-2xl shadow-glow mb-6"
-          />
-          <h1 className="text-4xl font-bold text-white mb-2">SkillSpark</h1>
-          <p className="text-white/90 text-lg">
+        {/* Header */}
+        <div className="text-center space-y-2 animate-slide-up">
+          <div className="inline-flex items-center gap-2 text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <Sparkles className="w-8 h-8 text-primary" />
+            SkillSpark
+          </div>
+          <CardTitle className="text-2xl text-center">
             Build better soft skills, one day at a time
-          </p>
+          </CardTitle>
+          <CardDescription className="text-center">
+            Start your daily skill-building journey
+          </CardDescription>
         </div>
 
         {/* Feature Cards */}
-        <div className="space-y-4 animate-slide-up" style={{animationDelay: '0.2s'}}>
-          <Card className="bg-gradient-glass backdrop-blur-md border-white/20">
-            <CardContent className="p-4 flex items-center gap-3">
+        <Card className="shadow-card border-border/50 bg-gradient-card animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/20 rounded-lg">
-                <Target className="w-5 h-5 text-white" />
+                <Target className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Daily Focus</h3>
-                <p className="text-white/80 text-sm">One skill per day, achievable goals</p>
+                <h3 className="font-semibold">Daily Focus</h3>
+                <p className="text-muted-foreground text-sm">One skill per day, achievable goals</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="bg-gradient-glass backdrop-blur-md border-white/20">
-            <CardContent className="p-4 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="p-2 bg-accent/20 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-white" />
+                <TrendingUp className="w-5 h-5 text-accent" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Track Progress</h3>
-                <p className="text-white/80 text-sm">Build streaks and see improvement</p>
+                <h3 className="font-semibold">Track Progress</h3>
+                <p className="text-muted-foreground text-sm">Build streaks and see improvement</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="bg-gradient-glass backdrop-blur-md border-white/20">
-            <CardContent className="p-4 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="p-2 bg-warning/20 rounded-lg">
-                <Sparkles className="w-5 h-5 text-white" />
+                <Sparkles className="w-5 h-5 text-warning" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Personalized</h3>
-                <p className="text-white/80 text-sm">Skills tailored to your interests</p>
+                <h3 className="font-semibold">Personalized</h3>
+                <p className="text-muted-foreground text-sm">Skills tailored to your interests</p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* CTA Button */}
-        <div className="animate-slide-up" style={{animationDelay: '0.4s'}}>
-          <Button asChild size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold text-lg py-6 rounded-xl shadow-glow hover:shadow-streak transition-spring">
+        <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <Button asChild size="lg" className="w-full bg-gradient-primary hover:opacity-90 font-semibold py-6">
             <Link to="/auth">Let's Get Started</Link>
           </Button>
         </div>
