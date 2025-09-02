@@ -53,7 +53,7 @@ export const useTaskCompletions = () => {
     try {
       const completion: Omit<TaskCompletion, 'id'> = {
         user_id: user.id,
-        task_id: skill.id,
+        custom_task_id: skill.id,
         completed_at: new Date().toISOString(),
         streak_day: streak + 1,
         rating,

@@ -67,7 +67,7 @@ export interface TaskCompletion {
 export const getTaskCompletion = async (userId: string): Promise<TaskCompletion[]> => {
   try {
     const { data, error } = await supabase
-      .from('user_task_completions')
+      .from('task_completions')
       .select('*')
       .eq('user_id', userId)
       .order('completed_at', { ascending: false });
@@ -87,7 +87,7 @@ export const getTaskCompletion = async (userId: string): Promise<TaskCompletion[
 export const addTaskCompletion = async (completion: Omit<TaskCompletion, 'id'>) => {
   try {
     const { error } = await supabase
-      .from('user_task_completions')
+      .from('task_completions')
       .insert(completion);
 
     if (error) {
@@ -105,7 +105,7 @@ export const getTodaysCompletions = async (userId: string): Promise<TaskCompleti
     today.setHours(0, 0, 0, 0); // Start of today
 
     const { data, error } = await supabase
-      .from('user_task_completions')
+      .from('task_completions')
       .select('*')
       .eq('user_id', userId)
       .gte('completed_at', today.toISOString())
