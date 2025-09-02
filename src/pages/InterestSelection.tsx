@@ -111,7 +111,7 @@ const InterestSelection = () => {
           
           <Button 
             variant="ghost"
-            onClick={handleContinue}
+            onClick={() => navigate('/home?onboarding=1')}
             disabled={loading}
             className="w-full text-muted-foreground"
           >

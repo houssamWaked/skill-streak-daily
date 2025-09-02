@@ -149,6 +149,8 @@ export type Database = {
           id: number
           notes: string | null
           satisfaction_level: number | null
+          task_category: string | null
+          task_name: string | null
           user_id: string | null
         }
         Insert: {
@@ -159,6 +161,8 @@ export type Database = {
           id?: never
           notes?: string | null
           satisfaction_level?: number | null
+          task_category?: string | null
+          task_name?: string | null
           user_id?: string | null
         }
         Update: {
@@ -169,17 +173,11 @@ export type Database = {
           id?: never
           notes?: string | null
           satisfaction_level?: number | null
+          task_category?: string | null
+          task_name?: string | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_completions_custom_task_id_fkey"
-            columns: ["custom_task_id"]
-            isOneToOne: false
-            referencedRelation: "custom_tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

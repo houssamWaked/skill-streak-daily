@@ -31,8 +31,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if new user needs onboarding (but don't redirect if already on interests page)
-  if (profile && profile.interests.length === 0 && location.pathname !== '/interests') {
+  // Check if new user needs onboarding (but don't redirect if already on interests page or skipping)
+  const params = new URLSearchParams(location.search);
+  const skippingOnboarding = params.get('onboarding') === '1';
+  if (profile && profile.interests.length === 0 && location.pathname !== '/interests' && !skippingOnboarding) {
     return <Navigate to="/interests" replace />;
   }
 

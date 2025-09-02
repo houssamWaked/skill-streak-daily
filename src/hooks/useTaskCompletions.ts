@@ -56,6 +56,8 @@ export const useTaskCompletions = () => {
         custom_task_id: skill.id,
         completed_at: new Date().toISOString(),
         satisfaction_level: rating,
+        task_name: skill.title,
+        task_category: skill.category,
         notes
       };
 

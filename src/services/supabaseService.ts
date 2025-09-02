@@ -62,6 +62,8 @@ export interface TaskCompletion {
   duration_minutes?: number;
   satisfaction_level?: number;
   notes?: string;
+  task_name?: string;
+  task_category?: string;
 }
 
 export const getTaskCompletion = async (userId: string): Promise<TaskCompletion[]> => {
@@ -247,6 +249,8 @@ export const migrateLocalStorageData = async (userId: string) => {
           user_id: userId,
           custom_task_id: completion.id,
           completed_at: completion.completedDate,
+          task_name: completion.title,
+          task_category: completion.category,
           notes: `Migrated from localStorage: ${completion.title}`
         });
       }
