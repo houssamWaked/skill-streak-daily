@@ -55,8 +55,7 @@ export const useTaskCompletions = () => {
         user_id: user.id,
         custom_task_id: skill.id,
         completed_at: new Date().toISOString(),
-        streak_day: streak + 1,
-        rating,
+        satisfaction_level: rating,
         notes
       };
 
@@ -78,7 +77,7 @@ export const useTaskCompletions = () => {
   };
 
   const isCompletedToday = !!todaysCompletion;
-  const completedSkillIds = completions.map(c => c.task_id).filter(Boolean) as string[];
+  const completedSkillIds = completions.map(c => c.custom_task_id).filter(Boolean) as string[];
 
   return {
     completions,

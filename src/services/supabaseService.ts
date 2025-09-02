@@ -54,20 +54,20 @@ export const updateUserProfile = async (userId: string, updates: Partial<UserPro
 
 // Task Completion Management
 export interface TaskCompletion {
-  id?: string;
+  id?: number;
   user_id: string;
-  task_id?: string;
   custom_task_id?: string;
-  completed_at: string;
-  streak_day: number;
-  rating?: number;
+  completed_at?: string;
+  completed_date?: string;
+  duration_minutes?: number;
+  satisfaction_level?: number;
   notes?: string;
 }
 
 export const getTaskCompletion = async (userId: string): Promise<TaskCompletion[]> => {
   try {
     const { data, error } = await supabase
-      .from('task_completions')
+      .from('user_task_completions')
       .select('*')
       .eq('user_id', userId)
       .order('completed_at', { ascending: false });
@@ -87,7 +87,7 @@ export const getTaskCompletion = async (userId: string): Promise<TaskCompletion[
 export const addTaskCompletion = async (completion: Omit<TaskCompletion, 'id'>) => {
   try {
     const { error } = await supabase
-      .from('task_completions')
+      .from('user_task_completions')
       .insert(completion);
 
     if (error) {
@@ -105,7 +105,7 @@ export const getTodaysCompletions = async (userId: string): Promise<TaskCompleti
     today.setHours(0, 0, 0, 0); // Start of today
 
     const { data, error } = await supabase
-      .from('task_completions')
+      .from('user_task_completions')
       .select('*')
       .eq('user_id', userId)
       .gte('completed_at', today.toISOString())
@@ -184,16 +184,20 @@ export const calculateStreak = (completions: TaskCompletion[]): number => {
   if (completions.length === 0) return 0;
 
   // Sort by completion date (most recent first)
-  const sortedCompletions = completions.sort((a, b) => 
-    new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime()
-  );
+  const sortedCompletions = completions
+    .filter(c => c.completed_at || c.completed_date)
+    .sort((a, b) => {
+      const dateA = new Date(a.completed_at || a.completed_date || 0);
+      const dateB = new Date(b.completed_at || b.completed_date || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
 
   let streak = 0;
   const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
   for (const completion of sortedCompletions) {
-    const completionDate = new Date(completion.completed_at);
+    const completionDate = new Date(completion.completed_at || completion.completed_date || 0);
     completionDate.setHours(0, 0, 0, 0);
 
     const diffDays = Math.floor((currentDate.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -241,9 +245,8 @@ export const migrateLocalStorageData = async (userId: string) => {
       for (const completion of completions) {
         await addTaskCompletion({
           user_id: userId,
-          task_id: completion.id,
+          custom_task_id: completion.id,
           completed_at: completion.completedDate,
-          streak_day: completion.dayNumber,
           notes: `Migrated from localStorage: ${completion.title}`
         });
       }

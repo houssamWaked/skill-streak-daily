@@ -92,34 +92,49 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          current_streak: number | null
           display_name: string | null
           id: string
           interests: string[] | null
+          last_completion_date: string | null
+          max_streak: number | null
           notification_enabled: boolean | null
           notification_time: string | null
+          streak_start_date: string | null
           theme: string | null
+          total_completions: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          current_streak?: number | null
           display_name?: string | null
           id?: string
           interests?: string[] | null
+          last_completion_date?: string | null
+          max_streak?: number | null
           notification_enabled?: boolean | null
           notification_time?: string | null
+          streak_start_date?: string | null
           theme?: string | null
+          total_completions?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          current_streak?: number | null
           display_name?: string | null
           id?: string
           interests?: string[] | null
+          last_completion_date?: string | null
+          max_streak?: number | null
           notification_enabled?: boolean | null
           notification_time?: string | null
+          streak_start_date?: string | null
           theme?: string | null
+          total_completions?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -127,40 +142,63 @@ export type Database = {
       }
       user_task_completions: {
         Row: {
-          completed_at: string
+          completed_at: string | null
+          completed_date: string | null
           custom_task_id: string | null
-          id: string
+          duration_minutes: number | null
+          id: number
           notes: string | null
-          rating: number | null
-          streak_day: number
-          task_id: string | null
-          user_id: string
+          satisfaction_level: number | null
+          user_id: string | null
         }
         Insert: {
-          completed_at?: string
+          completed_at?: string | null
+          completed_date?: string | null
           custom_task_id?: string | null
-          id?: string
+          duration_minutes?: number | null
+          id?: never
           notes?: string | null
-          rating?: number | null
-          streak_day: number
-          task_id?: string | null
-          user_id: string
+          satisfaction_level?: number | null
+          user_id?: string | null
         }
         Update: {
-          completed_at?: string
+          completed_at?: string | null
+          completed_date?: string | null
           custom_task_id?: string | null
-          id?: string
+          duration_minutes?: number | null
+          id?: never
           notes?: string | null
-          rating?: number | null
-          streak_day?: number
-          task_id?: string | null
-          user_id?: string
+          satisfaction_level?: number | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "task_completions_custom_task_id_fkey"
+            columns: ["custom_task_id"]
+            isOneToOne: false
+            referencedRelation: "custom_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      user_dashboard_stats: {
+        Row: {
+          avg_satisfaction: number | null
+          current_streak: number | null
+          custom_tasks_count: number | null
+          join_date: string | null
+          last_completion_date: string | null
+          max_streak: number | null
+          streak_start_date: string | null
+          total_completions: number | null
+          total_duration: number | null
+          unique_completion_days: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_daily_task: {
@@ -174,6 +212,10 @@ export type Database = {
           is_custom: boolean
           title: string
         }[]
+      }
+      recalculate_user_streaks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
